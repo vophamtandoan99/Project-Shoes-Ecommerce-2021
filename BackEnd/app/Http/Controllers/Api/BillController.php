@@ -41,9 +41,9 @@ class BillController
     }
 
     //Store Bill & BillDetail
-    public function store(Request $request, CustomerBillRequest $customerRequest, BillRequest $billRequest)
+    public function store($customer, Request $request, CustomerBillRequest $customerRequest, BillRequest $billRequest)
     {
-        $customer_id = $request->header('customer_id');
+        $customer_id = $customer;
         $items = new CartCollection($this->cartRepository->show($customer_id));
         if(!empty($items)){
             $totalPrice          = 0;
@@ -77,13 +77,12 @@ class BillController
             ]; 
             //mail
                 $to_name = "Shoes E-commerce";
-                $to_mail = 'shyneward123@gmail.com';//$customer->email;
+                $to_mail = $customer->email;
                 $data = ['name'=>"Shoes", "details"=>$dataresult];
                 Mail::send('mail', $data, function($message) use ($to_name, $to_mail){
                     $message->to($to_mail)->subject('Đơn hàng từ Shoes E-commerce');
                     $message->from($to_mail, $to_name);
-                });
-            
+                }); 
             return $dataresult;
         }
     }

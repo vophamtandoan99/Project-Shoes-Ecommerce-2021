@@ -12,12 +12,14 @@ Route::group(['namespace' => 'Api', 'middleware' => ['cors']], function () {
     |--------------------------------------------------------------------------
     */
         //Show web page
+            //ProductNew
+            Route::get('product-new', 'HomeController@show');
             // Sản phẩm theo nhà cung cấp
-            Route::get('product-supplier/{id}', 'HomeController@getProductSupplier')->name('product.supplier');
-            Route::get('product-category/{id}', 'HomeController@getProductCategory')->name('product.category');
+            Route::get('product-supplier/{id}', 'HomeController@getProductSupplier');
+            Route::get('product-category/{id}', 'HomeController@getProductCategory');
             //Color, Size theo Product
-            Route::get('product-color/{id}', 'HomeController@getProductColor')->name('product.color');
-            Route::get('product-size/{product}/{color}', 'HomeController@getProductSize')->name('product.size');
+            Route::get('product-color/{id}', 'HomeController@getProductColor');
+            Route::get('product-size/{product}/{color}', 'HomeController@getProductSize');
             
         //Product - Category - Supplier == WEB PAGE
         Route::get('category', 'CategoryController@search');
@@ -28,22 +30,27 @@ Route::group(['namespace' => 'Api', 'middleware' => ['cors']], function () {
             Route::post('login', 'LoginController@login')->name('login');
 
         //Customer
-            //Register customer
-            Route::post('customer', 'CustomerController@store');
+            Route::post('customer', 'CustomerController@store'); //Register customer
+            Route::put('customer/{id}', 'CustomerController@update');
+            Route::get('customer/{id}', 'CustomerController@show');
             //Login WEB PAGE
             Route::post('login-customer', 'CustomerController@login');
 
         //Payment WEB PAGE
-        Route::group(['middleware' => ['customer']], function () {
+        //Route::group(['middleware' => ['customer']], function () {
             //Cart
-            Route::post('add-cart', 'CartController@add');
-            Route::get('view-cart', 'CartController@view');
+            Route::post('add-cart/{customer}', 'CartController@add');
+            Route::get('view-cart/{customer}', 'CartController@view');
             Route::get('remove/{id}', 'CartController@remove');
-            Route::get('clear', 'CartController@clear');
+            Route::get('clear/{customer}', 'CartController@clear');
             Route::put('update-cart/{id}', 'CartController@update');
+
+            //get total cart theo customer
+            Route::get('total-cart/{customer}', 'CartController@total');
+            
             //Payment (store bill)
-            Route::post('bill', 'BillController@store');
-        });
+            Route::post('bill/{customer}', 'BillController@store');
+        //});
 
         //Logout
         Route::get('logout', 'LoginController@logout');
@@ -53,8 +60,8 @@ Route::group(['namespace' => 'Api', 'middleware' => ['cors']], function () {
     | ADMIN PAGE
     |--------------------------------------------------------------------------
     */
-    // Route::group(['middleware' => ['auth']], function () {
-    //     Route::group(['middleware' => ['role']], function () {
+   // Route::group(['middleware' => ['auth']], function () {
+     //   Route::group(['middleware' => ['role']], function () {
             /*
             |--------------------------------------------------------------------------
             | ADMIN - (role == 1)
@@ -90,7 +97,7 @@ Route::group(['namespace' => 'Api', 'middleware' => ['cors']], function () {
                 //Token
                 Route::post('refresh', 'LoginController@refreshToken');
                 Route::delete('delete-token', 'LoginController@deleteToken');
-       // });
+     //  });
         /*
             |--------------------------------------------------------------------------
             | ADMIN - USER (role == 1 || role ==2)
@@ -109,5 +116,5 @@ Route::group(['namespace' => 'Api', 'middleware' => ['cors']], function () {
 
                 // //Logout
                 // Route::get('logout', 'LoginController@logout')->name('user.logout');
-   // });
+   //});
 });

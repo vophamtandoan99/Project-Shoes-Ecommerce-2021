@@ -47,4 +47,15 @@ class CustomerRepository
     {
         return Customer::whereid($id)->paginate();
     }
+
+     //Update Customer
+     public function edit($inputs, $id)
+     {
+         return Customer::findOrFail($id)
+             ->update([
+                 'name'          => $inputs['name'],
+                 'phone'         => $inputs['phone'],
+                 'address'       => $inputs['address']
+             ]);
+     }
 }

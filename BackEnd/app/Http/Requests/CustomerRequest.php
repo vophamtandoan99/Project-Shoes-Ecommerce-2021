@@ -12,8 +12,14 @@ class CustomerRequest extends FormRequest
     }
     public function rules()
     {
-        return $this->storeRules();
+        if($this->isMethod('post')){
+            return $this->storeRules();
+        }elseif($this->isMethod('put')){
+            return $this->updateRules();
+        }
     }
+
+    //Store Customer
     public function storeRules(): array
     {
         return [
@@ -27,6 +33,24 @@ class CustomerRequest extends FormRequest
         return $this->only([
             'email',
             'password'
+        ]);
+    }
+
+    //update Customer
+    public function updateRules(): array
+    {
+        return [
+            'name'              => 'required|min:2|max:50',
+            'phone'             => 'required|numeric',
+            'address'           => 'required|min:1|max:200'
+        ];
+    }
+    public function updateFilter()
+    {
+        return $this->only([
+            'name',
+            'phone',
+            'address'
         ]);
     }
 }
