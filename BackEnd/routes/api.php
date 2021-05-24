@@ -83,6 +83,11 @@ Route::group(['namespace' => 'Api', 'middleware' => ['cors']], function () {
                 Route::put('product/{id}', 'ProductController@update');
                 Route::delete('product/{id}', 'ProductController@destroy');
 
+                //altribute
+                Route::get('altribute', 'ProductController@searchPSC');
+                Route::post('altribute', 'ProductController@storePSC');
+                Route::put('altribute/{id}', 'ProductController@updatePSC');
+
                 //User
                 Route::get('user', 'UserController@search');
                 Route::post('user', 'UserController@store');
@@ -109,10 +114,13 @@ Route::group(['namespace' => 'Api', 'middleware' => ['cors']], function () {
 
                 //Bill & BillDetail
                 Route::get('bill', 'BillController@search');
-                Route::get('bill/{id}', 'BillController@show')->name('bill.show');
-                Route::put('bill/{id}', 'BillController@update')->name('bill.update');
-                Route::delete('bill/{id}', 'BillController@destroy')->name('bill.destroy');
-                Route::get('statistical', 'BillController@statistical')->name('bill.statistical');
+                Route::get('bill/{id}', 'BillController@show');
+                Route::put('bill/{id}', 'BillController@update');
+                Route::delete('bill/{id}', 'BillController@destroy');
+                Route::get('statistical', 'BillController@statistical');
+
+                //Customer
+                Route::get('customer', 'CustomerController@search');
 
                 // //Logout
                 // Route::get('logout', 'LoginController@logout')->name('user.logout');

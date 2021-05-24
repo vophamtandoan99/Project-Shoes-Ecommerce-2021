@@ -37,7 +37,26 @@ class ProductRepository
             return $query->where('product.name', 'LIKE', '%' . $inputs['name'] . '%');
         })
         ->orderBy('product.sale', 'desc')
-        ->paginate();
+        ->paginate(100);
+    }
+
+    public function searchPSC($inputs)
+    {
+        return ProductSizeColor::join('product', 'product_size_color.product_id', '=', 'product.id')
+        ->join('color', 'product_size_color.color_id', '=', 'color.id')
+        ->join('size', 'product_size_color.size_id', '=', 'size.id')
+        ->select('product_size_color.id as id', 
+               'product.name as product',
+               'color.color as color',
+               'size.size as size')
+        ->when(isset($inputs['id']), function ($query) use ($inputs) {
+            return $query->where('product_size_color.id', $inputs['id']);
+        })
+        ->when(isset($inputs['product']), function ($query) use ($inputs) {
+            return $query->where('product.name', 'LIKE', '%' . $inputs['product'] . '%');
+        })
+        ->orderBy('product_size_color.id', 'desc')
+        ->paginate(10000);
     }
 
     //Show Product
@@ -61,27 +80,37 @@ class ProductRepository
             'status'        => 1
         ]);
     }
-    public function storePSC($data, $product_id)
+    public function storePSC($data)
     {
         return ProductSizeColor::create([
-            'product_id' => $product_id,
+            'product_id' => $data['product_id'],
             'size_id'    => $data['size_id'],
             'color_id'   => $data['color_id'],
             'amount'     => $data['amount']
         ]);
     }
-    public function sum($id)
+    public function storePSCNotNull($data, $checkData)
     {
-        return ProductSizeColor::where('product_id', $id)->sum('amount');
+        return ProductSizeColor::findOrFail($checkData->id)
+            ->update(['amount' => $data['amount']+$checkData->amount]);
     }
-    public function amount($product_id, $totalAmount)
+
+    public function checkData($data)
     {
+        return ProductSizeColor::where('product_id', '=', $data['product_id'])
+            ->where('color_id', '=', $data['color_id'])
+            ->where('size_id', '=', $data['size_id'])
+            ->first();
+    }
+
+    public function amount($product_id)
+    {
+        $totalAmount = ProductSizeColor::where('product_id', $product_id)->sum('amount');
         return Product::find($product_id)
             ->update([
                 'amount' => $totalAmount
             ]);
     }
-
 
     //Update Product
     public function update($inputs, $id)
@@ -97,17 +126,15 @@ class ProductRepository
                 'category_id'   => $inputs['category_id']
             ]);
     }
-    public function showPSC($id)
+
+    public function updatePSC($inputs, $id)
     {
-        return ProductSizeColor::where('product_id', $id)->get();
-    }
-    public function updatePSC($row)
-    {
-        return ProductSizeColor::findOrFail($row['id'])
+        return ProductSizeColor::findOrFail($id)
             ->update([
-                'size_id'    => $row['size_id'],
-                'color_id'   => $row['color_id'],
-                'amount'     => $row['amount']
+                'product_id' => $inputs['product_id'],
+                'size_id'    => $inputs['size_id'],
+                'color_id'   => $inputs['color_id'],
+                'amount'     => $inputs['amount']
         ]);
     }
 
@@ -135,27 +162,6 @@ class ProductRepository
         return Color::orderBy('color', 'desc')
         ->paginate();
     }
-
-    // public function category($id)
-    // {
-    //     return Product::
-    //     join('supplier', 'product.supplier_id', '=', 'supplier.id')
-    //     ->join('category', 'product.category_id', '=', 'category.id')
-    //     ->select('product.id as id', 'product.name as name', 
-    //                 'product.img as img', 'product.note as note',
-    //                 'product.import_price as import_price',
-    //                 'product.export_price as export_price',
-    //                 'product.amount as amount',
-    //                 'product.sale as sale',
-    //                 'product.status as status',
-    //                 'supplier.name as supplier_id',
-    //                 'category.name as category_id')
-    //     ->where('product.category_id', '=', $id)
-    //     ->orderBy('product.name', 'desc')
-    //     ->paginate(10);
-    // }
-
-
 
     //Note
     public function showSize($id)
